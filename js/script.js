@@ -189,13 +189,29 @@ function genererDOM(slide){
     DOM.className = 'slide';
     switch(slide.MIME) {
         case "text/html":
-            DOM.innerHTML = '<iframe src="'+src+'img/'+slide.filename+'"></iframe><div class="transparentCover"></div>';
+            let iframe = document.createElement('iframe');
+            iframe.src = src + 'img/' + slide.filename;
+            let cover = document.createElement('div');
+            cover.className = 'transparentCover';
+            DOM.appendChild(iframe);
+            DOM.appendChild(cover);
             break;
         case "video/mp4":
-            DOM.innerHTML = '<video width="1920" height="1080" muted preload><source src="img/'+slide.filename+'" type="video/mp4"></video>';
+            let video = document.createElement('video');
+            video.setAttribute('width', '1920');
+            video.setAttribute('height', '1080');
+            video.setAttribute('muted', true);
+            video.setAttribute('preload', true);
+            let source = document.createElement('source');
+            source.src = src + 'img/' + slide.filename;
+            source.setAttribute('type', 'video/mp4');
+            video.appendChild(source);
+            DOM.appendChild(video);
             break;
         default:
-            DOM.innerHTML = '<div style="background-image: url(\''+src+'img/'+slide.filename+'\')"></div>';
+            let image = document.createElement('div');
+            image.style.backgroundImage = 'url(' + src+'img/'+slide.filename + ')';
+            DOM.appendChild(image);
     }
     return DOM;
 }
@@ -260,7 +276,7 @@ function changeSlide(i){
     }
 
     currentSlideDiv.id = 'currentSlide';
-    playVideo(currentSlideDiv);
+    playVideo(currentSlideDiv, i);
 
     // Legg til neste slide
     nextSlideDiv = sortedSlides[nextSlide].DOM.cloneNode(true);
@@ -273,9 +289,9 @@ function changeSlide(i){
     },standardLength * ettSekund);
 }
 
-function playVideo(slide){
+function playVideo(slide, i){
     // Start filmen fra starten hvis det er en video
-    if (slide.mime == 'video/mp4') {
+    if (slide.querySelector('video')) {
         let vid = slide.querySelector('video');
         vid.currentTime = 0;
         vid.play();
