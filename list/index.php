@@ -1,5 +1,4 @@
 <?php
-    header("Access-Control-Allow-Origin: *");
     header('Content-Type: application/json');
     $files = scandir('../img');
     unset($files[0]);
