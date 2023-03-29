@@ -1,0 +1,188 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hva skjer på biblioteket</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/nb.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300:Bold" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" rel="stylesheet">
+        <style>
+            html, body, div, span, applet, object, iframe,
+            h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+            a, abbr, acronym, address, big, cite, code,
+            del, dfn, em, img, ins, kbd, q, s, samp,
+            small, strike, strong, sub, sup, tt, var,
+            b, u, i, center,
+            dl, dt, dd, ol, ul, li,
+            fieldset, form, label, legend,
+            table, caption, tbody, tfoot, thead, tr, th, td,
+            article, aside, canvas, details, embed, 
+            figure, figcaption, footer, header, hgroup, 
+            menu, nav, output, ruby, section, summary,
+            time, mark, audio, video {
+                -webkit-box-sizing:border-box;
+                box-sizing:border-box;
+                -webkit-user-select: none;  /* Chrome all / Safari all */
+                  -moz-user-select: none;  /* Firefox all */
+                   -ms-user-select: none;  /* IE 10+ */
+                       user-select: none;  /* Likely future */
+            }
+            body{
+                background-color: #58595B;
+                font-family: 'Open Sans', sans-serif;
+                padding: 1vw;
+                font-size: 1.5vw;
+                overflow: hidden;
+            }
+            h3{
+                font-weight: bold;
+                padding: 0 0 .25em 0;
+                font-size: 1.25em;
+            }
+            #calendar{
+                overflow: hidden;
+                display: grid;
+                flex-wrap: wrap;
+                gap: 1vw;
+                position: absolute;
+                top: 1vw;
+                left: 1vw;
+                bottom: 1vw;
+                right: 1vw;
+                grid-template-rows: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            article{
+                padding: 1vw;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                background-color: #DDDDDD;
+                background-color: rgba(256,256,240,1);
+                color: black;
+                position: relative;
+                display: -webkit-inline-box;
+                display: -ms-inline-flexbox;
+                display: inline-flex;
+                background-size: contain;
+                background-position: top center;
+                background-repeat: no-repeat;
+                -webkit-column-break-inside: avoid;
+                break-inside: avoid;
+            }
+            article.contain{
+                background-size: contain;
+                background-color: #FFFFFF;
+            }
+
+            .event .overlay{
+                background-color: rgba(256,256,240,1);
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 9vw;
+                position: absolute;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+                padding: 0 1em;
+            }
+            h3, p{
+                padding-bottom: 0.25em;
+            }
+
+            article.event .klokka{
+                padding: 0 1em;
+                min-width: 22%;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: horizontal;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: row;
+                flex-direction: row;
+            }le.event .info{
+            }
+            p:first-letter {
+                text-transform: uppercase
+            }
+            #log{
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                top: 75%;
+                left: 62%;
+                background-color: rgba(100,100,100,0.6);
+                box-shadow: 0 0 1vw rgba(0,0,0,0.5);
+                color: rgba(256,256,256,1);
+                white-space: pre;
+                overflow: auto;
+                font-family: monospace;
+                font-size: 1vw;
+                bottom: 0;
+                right: 0;
+                z-index: 20;
+            }
+            hr{
+                height: 0px;
+                background-color: rgba(200,200,200,0.5);
+                border: 0;
+                border-bottom: 1px solid rgba(200,200,200,0.5);
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="result" style="display:none"></div>
+        <script>
+            var iDag = moment();
+            var iDato = iDag.format("DD.MM.YYYY");
+            var omEnUke = iDag.add(2,'weeks').endOf('week').format("DD.MM.YYYY");
+            var url = "https://sspkalender.prokom.no/api/tidspunkt/?Categories=221000&SearchText=&DateFrom="+iDato+"&DateTo=&Municipalities=Ullensaker&Kunde=oru&Id=&ItemDate=&WeekDays=&List=&Count=6&Distributor=";
+            // console.log(url);
+            $( "#result" ).load( url, function(response, status, xhr) {
+                var json = JSON.parse(response);
+                if (json.MonthWithEvents.length >= 1) {
+                    var areThereAnyEventsToday = true;
+                } else {
+                    var areThereAnyEventsToday = false;
+                }
+                $('body').append('<div id="calendar"></div>');
+                for ( month in json.MonthWithEvents) {
+                    var monthObj = json.MonthWithEvents[month];
+                    for ( day in monthObj.DaysWithEvents) {
+                        var dayObj = monthObj.DaysWithEvents[day];
+                        dayObj.Date = monthObj.YearMonth+dayObj.Day;
+                        dayObj.Time = new Date(monthObj.Year+'-'+monthObj.Month+'-'+dayObj.Day);
+                        dayObj.Time.setHours(0, 0, 0, 0);
+                        for ( event in dayObj.Events) {
+                            var eventObj = dayObj.Events[event];
+                            var klokka = moment(eventObj.FraDato);
+                            var bilde = eventObj.KalenderObjekt.MedieFiler[0].LargeUrl;
+                            $('#calendar').append('<article class="event" id="'+eventObj.Id+'"></article>');
+                            
+                            if (bilde.indexOf('babytreff-logo') !== -1){
+                                $('article#'+eventObj.Id).addClass('contain');
+                            }
+
+                            $('article#'+eventObj.Id).css('background-image','url('+ bilde +')');
+                            $('article#'+eventObj.Id).append('<div class="overlay"></div>');
+                            $('article#'+eventObj.Id+' .overlay').append('<h3>'+eventObj.KalenderObjekt.Name+'</h3>');
+                            $('article#'+eventObj.Id+' .overlay').append('<p>'+klokka.format("dddd, D. MMMM [kl]. HH.mm")+'</p>');
+                            $('article#'+eventObj.Id+' .overlay').append('<p>'+eventObj.Lokasjon.Name+'</p>');
+                        }
+                    }
+                }
+
+            });
+        </script>
+    </body>
+</html>
