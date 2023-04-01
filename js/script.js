@@ -20,10 +20,29 @@ setInterval(lastData, ettSekund * 60);
 document.body.addEventListener('click', toggleFullScreen);
 document.body.addEventListener('touchend', toggleFullScreen);
 document.body.addEventListener('dblclick', pause);
+document.body.addEventListener('touchstart', doubleTouch);
 
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.body.requestFullscreen();
+    }
+}
+
+let expired
+function doubleTouch(e) {
+    if (e.touches.length === 1) {
+        if (!expired) {
+            expired = e.timeStamp + 400
+        } else if (e.timeStamp <= expired) {
+            // remove the default of this event ( Zoom )
+            e.preventDefault()
+            pause();
+            // then reset the variable for other "double Touches" event
+            expired = null
+        } else {
+            // if the second touch was expired, make it as it's the first
+            expired = e.timeStamp + 400
+        }
     }
 }
 
@@ -33,7 +52,7 @@ function pause(event) {
         document.getElementById('pause').style.display = 'block';
         paused = true;
     } else {
-        changeSlide(activeSlide);
+        changeSlide(nextSlide);
         document.getElementById('pause').style.display = 'none';
         paused = false;
     }
@@ -210,7 +229,7 @@ function genererDOM(slide){
             break;
         default:
             let image = document.createElement('div');
-            image.style.backgroundImage = 'url(' + src+'img/'+slide.filename + ')';
+            image.style.backgroundImage = `url('` + src + `img/` + slide.filename + `')`;
             DOM.appendChild(image);
     }
     return DOM;
