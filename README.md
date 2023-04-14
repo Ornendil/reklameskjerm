@@ -14,12 +14,12 @@ Kopier filene til serveren din. Hvis du har gh installert på serveren din kan d
 
 ## Hvordan?
 
-1. Lag plakater. Disse kan være bilder (png, jpg, web), videoer (mp4, uten lyd) eller websider (html).
+1. Lag plakater. Disse kan være bilder (png, jpg, webp), videoer (mp4, uten lyd) eller websider (html).
 
 2. Gi plakatene et filnavn:
 
     * Hvis filnavnet starter med en dato (i formatet ÅÅÅÅ-MM-DD) så vil plakaten avpubliseres på den datoen.
-    * Hvis du også legger til "-start" fulgt av en tilsvarende dato (f.eks. "start2023-01-23"), så vil plakaten publiseres på den datoen.
+    * Hvis du også legger til "-start" fulgt av en tilsvarende dato (f.eks. "-start2023-01-23"), så vil plakaten publiseres på den datoen.
     * Du kan også legge til "-len" fulgt av en integer for å endre hvor mange sekunder den plakaten skal være på skjermen (f.eks. "-len50"). Standard er 20. F.eks. ved videoer bør denne som regel settes til samme lengde som videoen.
 
     F.eks.:
